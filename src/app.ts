@@ -1,21 +1,12 @@
 import express, { Request, Response } from 'express';
 import Joi from 'joi';
-import pg from 'pg';
+import { pool } from '../database';
 
-const { Pool } = pg;
 interface Todo {
   id: number;
   description: string;
   completed: boolean;
 }
-
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'mytodos',
-  password: '3947',
-  port: 5432,
-});
 
 const todoSchema = Joi.object({
   description: Joi.string().required(),

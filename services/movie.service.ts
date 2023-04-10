@@ -1,13 +1,5 @@
-import { Pool } from 'pg';
 import { Movie } from '../models/movie';
-
-const pool = new Pool({
-port: 5432,
-user: 'postgres',
-password: 'postgres',
-host: 'localhost',
-database: 'moviesdb',
-});
+import { pool } from '../database';
 
 export async function getMovies(): Promise<Movie[]> {
 const client = await pool.connect();

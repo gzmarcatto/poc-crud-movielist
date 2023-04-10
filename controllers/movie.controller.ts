@@ -1,13 +1,5 @@
-import { Pool } from 'pg';
 import { Movie } from '../models/movie';
-
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'moviesPoc',
-  password: 'postgres',
-  port: 5432,
-});
+import { pool } from '../database';
 
 export class MovieController {
   private async executeQuery(query: string, params: any[] = []): Promise<any> {
