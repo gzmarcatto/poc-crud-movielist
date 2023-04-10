@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import Joi from 'joi';;
+import Joi from 'joi';
 import pg from 'pg';
 
 const { Pool } = pg;
@@ -100,27 +100,7 @@ todoRouter.put('/:id', async (req: Request<{ id: string }, {}, Todo>, res: Respo
       res.send(updatedTodo);
     } else {
       res.status(404).send('Todo not found');
-      }} catch (err: any) {
-    res.status(400).send(err.message);
     }
-});
-
-todoRouter.delete('/:id', async (req: Request<{ id: string }>, res: Response<boolean>) => {
-  const id = parseInt(req.params.id);
-  const deleted = await deleteTodoById(id);
-  if (deleted) {
-    res.send(true);
-  } else {
-    res.status(404).send(false);
-  }
-});
-
-const app = express();
-const PORT = 5000;
-
-app.use(express.json());
-app.use('/todos', todoRouter);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  } catch (err: any) {
+    res.status(400).send(err.message);
+  }})
