@@ -2,24 +2,24 @@ import express, { Request, Response } from 'express';
 import Joi from 'joi';
 import { pool } from '../database';
 
-interface Todo {
+interface Movie {
   id: number;
   description: string;
   completed: boolean;
 }
 
-const todoSchema = Joi.object({
+const movieSchema = Joi.object({
   description: Joi.string().required(),
   completed: Joi.boolean().required(),
 });
 
-async function getTodos(): Promise<Todo[]> {
-  const { rows } = await pool.query('SELECT * FROM todos ORDER BY id ASC');
+async function getMovies(): Promise<Movie[]> {
+  const { rows } = await pool.query('SELECT * FROM movies ORDER BY id ASC');
   return rows;
 }
 
-async function getTodoById(id: number): Promise<Todo | null> {
-  const { rows } = await pool.query('SELECT * FROM todos WHERE id = $1', [id]);
+async function getMovieById(id: number): Promise<Movie | null> {
+  const { rows } = await pool.query('SELECT * FROM movies WHERE id = $1', [id]);
   if (rows.length) {
     return rows[0];
   } else {
@@ -27,16 +27,16 @@ async function getTodoById(id: number): Promise<Todo | null> {
   }
 }
 
-async function createTodo(todo: Todo): Promise<Todo> {
-  const { description, completed } = todo;
-  const { rows } = await pool.query('INSERT INTO todos (description, completed) VALUES ($1, $2) RETURNING id', [description, completed]);
+async function createMovie(movie: Movie): Promise<Movie> {
+  const { description, completed } = movie;
+  const { rows } = await pool.query('INSERT INTO movies (description, completed) VALUES ($1, $2) RETURNING id', [description, completed]);
   const id = rows[0].id;
   return { id, description, completed };
 }
 
-async function updateTodoById(id: number, todo: Todo): Promise<Todo | null> {
-  const { description, completed } = todo;
-  const { rowCount } = await pool.query('UPDATE todos SET description = $1, completed = $2 WHERE id = $3', [description, completed, id]);
+async function updateMovieById(id: number, movie: Movie): Promise<Movie | null> {
+  const { description, completed } = movie;
+  const { rowCount } = await pool.query('UPDATE movies SET description = $1, completed = $2 WHERE id = $3', [description, completed, id]);
   if (rowCount) {
     return { id, description, completed };
   } else {
@@ -44,53 +44,53 @@ async function updateTodoById(id: number, todo: Todo): Promise<Todo | null> {
   }
 }
 
-async function deleteTodoById(id: number): Promise<boolean> {
-  const { rowCount } = await pool.query('DELETE FROM todos WHERE id = $1', [id]);
+async function deleteMovieById(id: number): Promise<boolean> {
+  const { rowCount } = await pool.query('DELETE FROM movies WHERE id = $1', [id]);
   return rowCount > 0;
 }
 
-const todoRouter = express.Router();
+const movieRouter = express.Router();
 
-todoRouter.get('/', async (req: Request, res: Response<Todo[]>) => {
-  const todos = await getTodos();
-  res.send(todos);
+movieRouter.get('/', async (req: Request, res: Response<Movie[]>) => {
+  const movies = await getMovies();
+  res.send(movies);
 });
 
-todoRouter.get('/:id', async (req: Request<{ id: string }>, res: Response<Todo | string>) => {
+movieRouter.get('/:id', async (req: Request<{ id: string }>, res: Response<Movie | string>) => {
   const id = parseInt(req.params.id);
-  const todo = await getTodoById(id);
-  if (todo) {
-    res.send(todo);
+  const movie = await getMovieById(id);
+  if (movie) {
+    res.send(movie);
   } else {
-    res.status(404).send('Todo not found');
+    res.status(404).send('Movie not found');
   }
 });
 
-todoRouter.post('/', async (req: Request<{}, {}, Todo>, res: Response<Todo | string>) => {
+movieRouter.post('/', async (req: Request<{}, {}, Movie>, res: Response<Movie | string>) => {
   try {
-    const { error } = todoSchema.validate(req.body);
+    const { error } = movieSchema.validate(req.body);
     if (error) {
       throw new Error(error.message);
     }
-    const newTodo = await createTodo(req.body);
-    res.send(newTodo);
+    const newMovie = await createMovie(req.body);
+    res.send(newMovie);
   } catch (err: any) {
     res.status(400).send(err.message);
   }
 });
 
-todoRouter.put('/:id', async (req: Request<{ id: string }, {}, Todo>, res: Response<Todo | string>) => {
+movieRouter.put('/:id', async (req: Request<{ id: string }, {}, Movie>, res: Response<Movie | string>) => {
   const id = parseInt(req.params.id);
   try {
-    const { error } = todoSchema.validate(req.body);
+    const { error } = movieSchema.validate(req.body);
     if (error) {
       throw new Error(error.message);
     }
-    const updatedTodo = await updateTodoById(id, req.body);
-    if (updatedTodo) {
-      res.send(updatedTodo);
+    const updatedMovie = await updateMovieById(id, req.body);
+    if (updatedMovie) {
+      res.send(updatedMovie);
     } else {
-      res.status(404).send('Todo not found');
+      res.status(404).send('Movie not found');
     }
   } catch (err: any) {
     res.status(400).send(err.message);
